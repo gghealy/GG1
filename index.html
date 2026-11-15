@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f2d8f2">
+<title>My Planner • Rider Edition</title>
+<style>
+:root{--ink:#392d43;--muted:#806d8a;--pink:#f8ddec;--lav:#eadcf8;--purple:#8c58a8;--paper:#fff8fc;--line:#f0e4f3;--green:#dff2e5}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}
+header{padding:24px 18px 18px;background:linear-gradient(135deg,var(--lav),var(--pink));border-radius:0 0 28px 28px}
+header .eyebrow{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#785b85;font-weight:700}
+h1{margin:3px 0;font-size:27px}header p{margin:4px 0;color:#71567b}
+nav{position:sticky;top:0;z-index:5;display:flex;gap:4px;justify-content:space-around;background:#fff;padding:8px 4px;border-bottom:1px solid var(--line)}
+nav button{border:0;background:transparent;color:var(--muted);font-size:12px;padding:10px 7px;border-radius:12px;font-weight:600}
+nav button.active{background:#f2e4f8;color:#75428e}
+main{max-width:720px;margin:auto;padding:12px 14px 30px}.page{display:none}.page.active{display:block}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;margin:12px 0;box-shadow:0 3px 12px #eadfeb55}
+h2{font-size:20px;margin:3px 0 12px}h3{font-size:16px;margin:0 0 8px}h4{font-size:14px;margin:12px 0 5px}
+p{margin:6px 0 10px}.muted,.small{color:var(--muted);font-size:13px}.pill{display:inline-block;padding:4px 9px;background:#f5e9fa;border-radius:99px;font-size:11px;color:#75428e;font-weight:700}
+select,input,textarea{font:inherit;width:100%;border:1px solid #e4d6e9;border-radius:12px;padding:11px;background:#fffaff;color:var(--ink);margin:5px 0}
+textarea{min-height:100px}button.action{border:0;border-radius:12px;background:var(--purple);color:#fff;padding:11px 15px;font-weight:700;margin:5px 4px 5px 0}
+button.secondary{background:#f1e5f6;color:#71418a}
+.check{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #f6edf7;font-size:14px}
+.check:last-child{border-bottom:0}.check input{width:19px;height:19px;accent-color:#9c65b8;margin:2px 0;flex:none}
+.progress{height:9px;background:#f0e6f4;border-radius:99px;overflow:hidden;margin:10px 0}.bar{height:100%;background:#b47bd0;width:0}
+.day{border-top:1px solid var(--line);padding:12px 0}.day:first-child{border-top:0}
+.exercise{border:1px solid #eee2f3;border-radius:15px;padding:13px;margin:10px 0;background:#fff}
+.exercise .top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.exercise details{margin-top:8px}.exercise summary{font-weight:700;color:#764a8d;cursor:pointer;padding:6px 0}
+.exercise ul{padding-left:20px;margin:5px 0}.exercise li{margin:5px 0}
+.notice{background:#fff4dc;border:1px solid #f4dfaa;padding:12px;border-radius:14px;font-size:13px}
+.green{background:#f0fbf4;border-color:#d7eddd}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:#fbf5fd;border-radius:14px;padding:12px}.stat strong{font-size:20px;display:block}
+footer{text-align:center;color:#a18aa8;font-size:12px;padding:20px}
+a{color:#8050a0}
+@media(min-width:600px){nav button{font-size:14px;padding:10px 16px}}
+
+/* Compact iPhone timetable rows */
+#scheduleList .card{
+  padding:0 !important;margin:7px 0 !important;border-radius:13px !important;
+  box-shadow:none !important;overflow:hidden;
+}
+#scheduleList .check{
+  display:grid !important;grid-template-columns:22px 58px minmax(0,1fr) !important;
+  align-items:center !important;gap:10px !important;padding:12px 13px !important;
+  border:0 !important;min-height:48px !important;font-size:15px !important;
+}
+#scheduleList .check input{grid-column:1;width:19px;height:19px;margin:0 !important}
+#scheduleList .check span{grid-column:2 / 4;display:grid;grid-template-columns:58px minmax(0,1fr);gap:10px;align-items:start}
+#scheduleList .check span b{color:#8c58a8;white-space:nowrap;font-weight:700}
+#scheduleList .check span{line-height:1.35}\n#scheduleList .check span .tasktext{display:block;min-width:0;overflow-wrap:anywhere}
+#scheduleList .card:has(.check input:checked){background:#f5eff8}
+#scheduleList .check input:checked + span{opacity:.58;text-decoration:line-through}
+@media(max-width:430px){
+ #scheduleList .check{padding:11px 10px !important;grid-template-columns:20px 52px minmax(0,1fr) !important;gap:7px !important;font-size:14px !important}
+ #scheduleList .check span{grid-template-columns:52px minmax(0,1fr);gap:7px}
+}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">Your personal planner</div><h1>My Planner ✨</h1><p>Life • Arni • Rider training • Progress</p></header>
+<nav>
+<button class="active" onclick="show('week',this)">📅 Week</button>
+<button onclick="show('schedule',this)">⏰ Day</button>
+<button onclick="show('training',this)">🐴 Rider</button>
+<button onclick="show('progress',this)">🌱 Progress</button>
+<button onclick="show('notes',this)">📝 Notes</button>
+</nav>
+<main>
+<section id="week" class="page active">
+<div class="card"><h2>My weekly plan</h2><label for="weekType" class="small">Choose your week</label><select id="weekType" onchange="renderWeek()"><option>Mum Week</option><option>Dad Week</option></select>
+<div class="progress"><div class="bar" id="weekBar"></div></div><p class="small" id="weekSummary">0/0 done</p></div>
+<div id="weekDays"></div>
+<div class="card"><h3>Weekly reset</h3><p class="small">Ticks are saved on this device/browser. Reset only when you start a fresh week.</p><button class="action secondary" onclick="resetWeek()">Reset this week's ticks</button></div>
+</section>
+<section id="schedule" class="page">
+<div class="card"><h2>My day timetable ⏰</h2><p>Choose a day to see your time-by-time routine. Tick each item as you finish it.</p>
+<select id="daySelect" onchange="renderSchedule()"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>
+<div class="progress"><div class="bar" id="scheduleBar"></div></div><p class="small" id="scheduleSummary"></p></div>
+<div id="scheduleList"></div>
+<div class="card"><h3>Add your own routine item</h3><input id="customTime" placeholder="Time (e.g. 6:30)"><input id="customTask" placeholder="What do you need to do?"><button class="action" onclick="addCustom()">Add to this day</button><p class="small">Custom items are saved on this device.</p></div>
+</section>
+<section id="training" class="page">
+<div class="card"><h2>Rider stability programme</h2><p>This is an off-horse conditioning plan—not a riding lesson. Aim for comfortable, controlled movement and quality, not exhaustion.</p>
+<div class="two"><div class="stat"><strong>15–20 min</strong><span class="small">per session</span></div><div class="stat"><strong>5 days</strong><span class="small">short sessions + 2 recovery days</span></div></div></div>
+<div class="notice">Safety: use a clear floor, stable chair/wall for support, and tell a parent/guardian about your plan. Skip anything painful, dizzying, or unstable. No standing/kneeling on the exercise ball, and don't use weights on balance exercises.</div>
+<div id="trainingDays"></div>
+<div class="card"><h3>Before you start</h3><p><b>Warm-up (3 minutes):</b> march gently 45 sec; shoulder circles 30 sec; hip circles 30 sec; ankle rocks 30 sec; easy sit-to-stands 45 sec.</p><p><b>Cool-down (2 minutes):</b> slow breathing, gentle hip-flexor and chest stretch. No bouncing or forcing a stretch.</p><p class="small">On each strength exercise, rest about 30–60 sec between sets. Stop a set when you can't keep the movement neat.</p></div>
+</section>
+<section id="progress" class="page">
+<div class="card"><h2>12-week check-ins 🌱</h2><p>Build consistency gradually. This is a check-in—not a test or a promise that riding skills will automatically change.</p><div class="progress"><div class="bar" id="progBar"></div></div><p><b>Week <span id="progWeek">1</span> of 12</b></p><button class="action" onclick="checkin()">Complete this week's check-in</button><button class="action secondary" onclick="resetProg()">Start again at week 1</button></div>
+<div class="card"><h3>Reflection prompts</h3><label class="check"><input type="checkbox" class="goal"> I practised with control, not speed</label><label class="check"><input type="checkbox" class="goal"> I noticed what felt easier</label><label class="check"><input type="checkbox" class="goal"> I rested when I needed to</label><label class="check"><input type="checkbox" class="goal"> I asked my coach for feedback on one riding skill</label><textarea id="reflection" placeholder="What felt good? What would I like to practise next?"></textarea><button class="action" onclick="saveReflection()">Save reflection</button></div>
+<div class="card"><h3>How to progress</h3><p>Weeks 1–2: learn the technique and use the lower end of the repetitions. Weeks 3–4: add 1–2 reps only if everything feels controlled. Weeks 5–6: keep the same exercises and focus on steadier breathing and symmetry. Weeks 7–8: progress a little only if the previous level is easy and pain-free. Weeks 9–12: maintain good form; ask a qualified coach/physio before adding harder or loaded variations.</p><p class="small">You can repeat a week or take an easier week any time. There is no penalty for that.</p></div>
+</section>
+<section id="notes" class="page">
+<div class="card"><h2>My notes 📝</h2><textarea id="notesText" placeholder="Riding notes, reminders, questions for my instructor..."></textarea><button class="action" onclick="saveNotes()">Save notes</button><p id="notesStatus" class="small"></p></div>
+<div class="card"><h3>Useful questions for my instructor</h3><ul><li>Am I sitting evenly left and right?</li><li>Can you check my pelvis and upper-body position?</li><li>What is one safe exercise to practise for my sitting trot?</li><li>Could you watch me do a simple balance exercise on the ground?</li></ul></div>
+</section>
+<div class="card"><h3>Research & why this plan looks like this</h3>
+<p class="small">The British Horse Society says riders benefit from core strength, balance, flexibility and stamina, and recommends starting gradually. Research has found that structured core-stability programmes can improve riders' balance and trunk endurance; one small 8-week study reported improved left-right saddle-pressure symmetry. The evidence is promising but still limited—fitness supports riding, it doesn't replace instruction or guarantee a sitting canter.</p>
+<p class="small">Sources: <a href="https://www.bhs.org.uk/go-riding-and-learn/stable-mates/rider-fitness/" target="_blank">British Horse Society: Rider fitness</a> · <a href="https://link.springer.com/article/10.1007/s11332-020-00729-0" target="_blank">6-week core stability study</a> · <a href="https://doi.org/10.1080/24748668.2015.11868858" target="_blank">8-week rider core programme study</a></p>
+</div>
+<footer>Made for you & your riding 💗</footer>
+</main>
+<script>
+const life={
+"Mum Week":{
+Monday:["School","Homework / study","Pack school bag"],
+Tuesday:["School","Dance","Arni time (if planned)"],
+Wednesday:["School","Homework / study"],
+Thursday:["School","Dance","Arni time (if planned)"],
+Friday:["School","Arni afternoon","Pack for weekend"],
+Saturday:["Arni time","Riding","Enjoy / reflect"],
+Sunday:["Arni time","Riding (if planned)","Get ready for school"]
+},
+"Dad Week":{
+Monday:["School","Homework / study","Pack school bag"],
+Tuesday:["School","Arni time"],
+Wednesday:["School","Homework / study"],
+Thursday:["School","Arni time"],
+Friday:["School","Arni afternoon"],
+Saturday:["Arni time","Riding","Enjoy / reflect"],
+Sunday:["Arni time","Riding (if planned)","Get ready for school"]
+}};
+const sessions=[
+{name:"Monday — Core & posture",focus:"Trunk control • 15–18 min",items:[
+["Dead bug","2 sets × 5 each side","Lie on your back with arms up and knees bent. Brace gently as if zipping up jeans; slowly lower one heel toward the floor while the opposite arm reaches back. Return and alternate.","Keep your lower back comfortably steady; shorten the reach if it arches. Breathe out as you extend.","Trains controlled trunk movement while arms and legs move."],
+["Bird dog","2 sets × 5 each side (3-sec hold)","Start on hands and knees, hands under shoulders and knees under hips. Reach one arm forward and the opposite leg back; pause; return slowly.","Keep hips level and look at the floor. Only reach as far as you can without twisting.","Practises coordination and resisting rotation."],
+["Wall posture hold","3 × 20–30 sec","Stand with back near a wall, feet a little forward. Let ribs sit over pelvis; keep chin level and shoulders relaxed. Breathe normally.","Don't force your back flat or pull shoulders hard back.","Body awareness for a tall, relaxed upper body."]]},
+{name:"Tuesday — Leg control",focus:"Lower-body strength • 15–20 min",items:[
+["Chair sit-to-stand","2 sets × 8","Sit near the front of a sturdy chair. Feet about hip-width apart. Lean forward slightly, stand smoothly, then lower slowly until you lightly touch the chair.","Knees point in the same direction as toes; use hands on thighs or chair if needed.","Builds leg strength for stable, controlled movement."],
+["Supported split squat","2 sets × 5 each side","Stand beside a wall/chair and hold it lightly. Step one foot back; bend both knees a small comfortable amount, then push through front foot to rise.","Keep front heel down and torso tall. Make the movement shallow; stop if knee discomfort.","Practises each leg separately and helps control."],
+["Calf raise","2 sets × 8–10","Hold a wall or chair. Rise onto both forefeet, pause briefly, then lower slowly.","Keep ankles straight rather than rolling outward.","Strengthens lower legs used for balance and foot control."]]},
+{name:"Wednesday — Recovery",focus:"Easy mobility • 8–12 min",items:[
+["Gentle walk or march","3–5 min","Walk at an easy pace, or march gently on the spot.","You should be able to talk comfortably.","Light movement and recovery—not a hard workout."],
+["Hip-flexor stretch","2 × 20 sec each side","Use a short split stance. Gently tuck pelvis and shift forward a little until you feel a mild stretch at the front of the back hip.","Keep ribs over pelvis; don't arch your back or push hard.","Comfortable hip mobility for sitting and moving."],
+["Chest opener","2 × 20 sec","Stand in a doorway with forearm on the frame, elbow below shoulder. Turn gently away until mild stretch.","No shoulder pain; keep it easy.","May help offset a rounded-shoulder feeling."]]},
+{name:"Thursday — Balance & coordination",focus:"Steady balance • 12–16 min",items:[
+["Single-leg balance (supported)","3 × 15–20 sec each side","Stand beside a wall or sturdy chair. Lift one foot just off floor and balance; fingertips can stay on support.","Eyes open, hips level, standing knee soft. No wobble challenge or unstable surface.","Practises quiet control and awareness of each side."],
+["Marching with tall posture","2 × 30 sec","Stand tall near a wall. Slowly lift one knee, lower, then alternate as if marching.","Keep shoulders relaxed and avoid leaning backwards.","Coordinates trunk and legs while upright."],
+["Heel-to-toe walk","2 × 6 slow steps","Walk slowly along a clear line, heel close to opposite toes. Use wall support if needed.","Eyes forward; stop if dizzy or unsteady.","Low-risk coordination practice."]]},
+{name:"Friday — Mobility & reset",focus:"Relaxed movement • 10–15 min",items:[
+["Cat-cow (small range)","6 slow cycles","On hands and knees, gently round your back, then return through neutral and softly lift chest. Move slowly with breathing.","Comfortable range only; don't force end positions.","Encourages gentle spinal movement."],
+["Seated hip rotation","6 each side","Sit upright on chair. Move one knee gently outward/inward within comfortable range; keep pelvis still.","No pushing knee with your hand.","Practises hip awareness and mobility."],
+["Shoulder circles","8 each direction","Stand or sit tall. Circle shoulders smoothly up, back, and down.","Keep neck relaxed.","Easy shoulder mobility and tension reset."]]},
+{name:"Saturday — Full-body control (optional)",focus:"Light circuit • 12–18 min",items:[
+["Chair sit-to-stand","2 × 8","Use Tuesday's technique; slow lowering.","Stop before form gets messy.","Reinforces leg control."],
+["Wall push-up","2 × 6–8","Hands on wall at chest height, body straight. Bend elbows to bring chest toward wall; push away.","Keep body in one line; elbows comfortably angled.","Builds upper-body strength for general stability."],
+["Dead bug","2 × 4 each side","Use Monday's technique; make the reach small and controlled.","Back stays comfortable; breathe.","Reinforces trunk control."],
+["Bird dog","1–2 × 4 each side","Use Monday's technique with a brief pause.","Keep hips square.","Reinforces coordination."]]},
+{name:"Sunday — Rest",focus:"Recovery • 0–5 min",items:[
+["Rest day","No workout required","Enjoy your day, or take an easy walk if you want to.","Rest is part of training. No need to make up missed sessions.","Lets you recover and keep the plan sustainable."]]}
+];
+function show(id,b){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active')}
+function readTicks(){return JSON.parse(localStorage.getItem('plannerTicks')||'{}')}
+
+const schedules={
+Monday:[["6:00","Wake up"],["6:01","Make bed"],["6:03","Rider workout (open Rider tab)"],["6:17","Shower"],["6:20","Get dressed"],["6:25","Skin care / makeup"],["6:35","Hair"],["6:45","Homework"],["7:00","Breakfast"],["7:10","Pack bag"],["7:15","Final check / shoes / water"],["8:00","School"],["3:30","Unpack bag"],["3:35","Shower"],["3:45","Get changed"],["3:50","Gym / calisthenics (open Rider tab)"],["4:40","Homework"],["5:10","Dance"],["5:30","Dinner"],["5:50","Movie / chill"],["8:30","Get ready for bed"],["9:00","Bed / quiet time"]],
+Tuesday:[["6:00","Wake up"],["6:01","Make bed"],["6:03","Rider workout (open Rider tab)"],["6:17","Shower"],["6:20","Get dressed"],["6:25","Skin care / makeup"],["6:35","Hair"],["6:45","Homework"],["7:00","Breakfast"],["7:10","Pack bag"],["8:00","School"],["3:30","Unpack bag"],["3:45","Arni time / riding (as planned)"],["5:00","Homework if needed"],["5:30","Dinner"],["6:00","Chill / prepare tomorrow"],["8:30","Bed routine"]],
+Wednesday:[["6:00","Wake up"],["6:01","Make bed"],["6:03","Rider workout (open Rider tab)"],["6:17","Shower"],["6:20","Get dressed"],["6:25","Skin care / makeup"],["6:35","Hair"],["6:45","Homework"],["7:00","Breakfast"],["7:10","Pack bag"],["8:00","School"],["3:30","Unpack bag"],["3:45","Snack / rest"],["4:00","Homework"],["5:30","Dinner"],["6:00","Free time / chill"],["8:30","Bed routine"]],
+Thursday:[["6:00","Wake up"],["6:01","Make bed"],["6:03","Rider workout (open Rider tab)"],["6:17","Shower"],["6:20","Get dressed"],["6:25","Skin care / makeup"],["6:35","Hair"],["6:45","Homework"],["7:00","Breakfast"],["7:10","Pack bag"],["8:00","School"],["3:30","Unpack bag"],["3:45","Arni time (as planned)"],["4:40","Homework"],["5:10","Dance"],["5:30","Dinner"],["6:00","Chill"],["8:30","Bed routine"]],
+Friday:[["6:00","Wake up"],["6:01","Make bed"],["6:03","Short mobility (optional)"],["6:17","Shower"],["6:20","Get dressed"],["6:25","Skin care / makeup"],["6:35","Hair"],["6:45","Homework"],["7:00","Breakfast"],["7:10","Pack bag"],["8:00","School"],["3:30","Unpack bag"],["3:45","Arni afternoon"],["5:30","Dinner"],["6:00","Relax / weekend prep"],["8:30","Bed routine"]],
+Saturday:[["7:30","Wake up (flexible)"],["7:40","Breakfast"],["8:00","Get ready / pack riding things"],["Morning","Arni time / riding (as planned)"],["After riding","Cool down, care for horse with adult guidance"],["Afternoon","Rest / free time"],["Evening","Dinner / chill"]],
+Sunday:[["7:30","Wake up (flexible)"],["7:40","Breakfast"],["Morning","Arni time / riding (as planned)"],["Afternoon","Rest / free time"],["5:00","Pack school bag / check uniform"],["6:00","Dinner"],["7:00","Quiet time"],["8:30","Bed routine"]]
+};
+function readScheduleTicks(){return JSON.parse(localStorage.getItem('scheduleTicks')||'{}')}
+function renderSchedule(){
+let day=document.getElementById('daySelect').value,items=[...(schedules[day]||[])],custom=JSON.parse(localStorage.getItem('customSchedule')||'{}');items=items.concat(custom[day]||[]);
+let t=readScheduleTicks(),html='',done=0;
+items.forEach((it,i)=>{let key=day+'|'+i+'|'+it[0]+'|'+it[1];if(t[key])done++;html+=`<div class="card"><label class="check"><input type="checkbox" ${t[key]?'checked':''} onchange="scheduleTick('${encodeURIComponent(key)}',this.checked)"><span><b>${it[0]}</b><span class="tasktext">${it[1]}</span></span></label></div>`});
+document.getElementById('scheduleList').innerHTML=html;document.getElementById('scheduleBar').style.width=(items.length?done/items.length*100:0)+'%';document.getElementById('scheduleSummary').textContent=done+' of '+items.length+' routine items complete';
+}
+function scheduleTick(k,v){let t=readScheduleTicks();t[decodeURIComponent(k)]=v;localStorage.setItem('scheduleTicks',JSON.stringify(t));renderSchedule()}
+function addCustom(){let day=document.getElementById('daySelect').value,time=document.getElementById('customTime').value.trim(),task=document.getElementById('customTask').value.trim();if(!time||!task){alert('Add both a time and a task first.');return}let c=JSON.parse(localStorage.getItem('customSchedule')||'{}');c[day]=c[day]||[];c[day].push([time,task]);localStorage.setItem('customSchedule',JSON.stringify(c));document.getElementById('customTime').value='';document.getElementById('customTask').value='';renderSchedule()}
+function renderWeek(){let type=document.getElementById('weekType').value,d=life[type],t=readTicks(),html='',total=0,done=0;
+for(let day in d){html+=`<div class="card"><h3>${day}</h3>`;d[day].forEach(task=>{let k=type+'|'+day+'|'+task;total++;if(t[k])done++;html+=`<label class="check"><input type="checkbox" ${t[k]?'checked':''} onchange="toggleTick('${encodeURIComponent(k)}',this.checked)"><span>${task}</span></label>`});html+='</div>'}
+document.getElementById('weekDays').innerHTML=html;document.getElementById('weekBar').style.width=(total?done/total*100:0)+'%';document.getElementById('weekSummary').textContent=done+' of '+total+' tasks completed'}
+function toggleTick(k,v){let t=readTicks();t[decodeURIComponent(k)]=v;localStorage.setItem('plannerTicks',JSON.stringify(t));renderWeek()}
+function resetWeek(){if(confirm('Reset ticks for this week?')){let type=document.getElementById('weekType').value,t=readTicks();Object.keys(t).forEach(k=>{if(k.startsWith(type+'|'))delete t[k]});localStorage.setItem('plannerTicks',JSON.stringify(t));renderWeek()}}
+function renderTraining(){let t=readTicks(),out='';sessions.forEach((s,i)=>{out+=`<div class="card"><span class="pill">${i===2||i===6?'RECOVERY':'SESSION'}</span><h2 style="margin-top:8px">${s.name}</h2><p class="muted">${s.focus}</p>`;s.items.forEach((e,j)=>{let k='exercise|'+i+'|'+j;out+=`<div class="exercise"><div class="top"><b>${e[0]}</b><span class="pill">${e[1]}</span></div><label class="check"><input type="checkbox" ${t[k]?'checked':''} onchange="exerciseTick('${k}',this.checked)"><span>Completed</span></label><details><summary>How to do it + technique cues</summary><p><b>Steps:</b> ${e[2]}</p><p><b>Form cue:</b> ${e[3]}</p><p><b>Rider connection:</b> ${e[4]}</p></details></div>`});out+='</div>'});document.getElementById('trainingDays').innerHTML=out}
+function exerciseTick(k,v){let t=readTicks();t[k]=v;localStorage.setItem('plannerTicks',JSON.stringify(t))}
+let wk=Number(localStorage.getItem('plannerCheckin')||1);function drawProg(){document.getElementById('progWeek').textContent=wk;document.getElementById('progBar').style.width=(wk/12*100)+'%'}
+function checkin(){if(wk<12)wk++;localStorage.setItem('plannerCheckin',wk);drawProg()}
+function resetProg(){if(confirm('Reset progress to week 1?')){wk=1;localStorage.setItem('plannerCheckin',1);drawProg()}}
+function saveNotes(){localStorage.setItem('plannerNotes',document.getElementById('notesText').value);document.getElementById('notesStatus').textContent='Saved on this device ✓'}
+function saveReflection(){localStorage.setItem('plannerReflection',document.getElementById('reflection').value);alert('Reflection saved on this device ✓')}
+document.getElementById('notesText').value=localStorage.getItem('plannerNotes')||'';document.getElementById('reflection').value=localStorage.getItem('plannerReflection')||'';renderWeek();renderTraining();renderSchedule();drawProg();
+</script>
+</body></html>
